@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,9 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
-export const Auth = () => {
+type AuthProps = {
+  onSuccess: () => void;
+};
+
+export const Auth = ({ onSuccess }: AuthProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -18,12 +23,12 @@ export const Auth = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
+      await api.register(email, password, name);
       toast({
         title: "Account created!",
-        description: "You can now sign in with your credentials.",
+        description: "You have been signed in successfully.",
       });
+      onSuccess();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -39,8 +44,12 @@ export const Auth = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      await api.login(email, password);
+      toast({
+        title: "Welcome back!",
+        description: "You have been signed in successfully.",
+      });
+      onSuccess();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -98,6 +107,16 @@ export const Auth = () => {
             </TabsContent>
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name-signup">Name (Optional)</Label>
+                  <Input
+                    id="name-signup"
+                    type="text"
+                    placeholder="Your Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="email-signup">Email</Label>
                   <Input

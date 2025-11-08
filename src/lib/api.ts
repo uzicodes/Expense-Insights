@@ -1,5 +1,19 @@
 // API client for MongoDB backend
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:4000';
+// In development, use Vite proxy (empty string = same origin)
+// In production, use VITE_API_URL from env
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '';
+
+// Token management
+const TOKEN_KEY = 'expense_tracker_token';
+
+export const getToken = () => localStorage.getItem(TOKEN_KEY);
+export const setToken = (token: string) => localStorage.setItem(TOKEN_KEY, token);
+export const removeToken = () => localStorage.removeItem(TOKEN_KEY);
+
+const getAuthHeaders = () => {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export type Expense = {
   _id: string;
@@ -9,6 +23,17 @@ export type Expense = {
   date: string;
   createdAt?: string;
   updatedAt?: string;
+};
+
+export type User = {
+  id: string;
+  email: string;
+  name?: string;
+};
+
+export type AuthResponse = {
+  token: string;
+  user: User;
 };
 
 export type CreateExpenseData = {
@@ -26,6 +51,70 @@ export type ExpenseFilters = {
 };
 
 export const api = {
+  // Auth endpoints
+  async register(email: string, password: string, name?: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name }),
+    });
+    if (!response.ok) {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to register');
+      } else {
+        // Server returned HTML or other non-JSON response
+        const text = await response.text();
+        console.error('Server response:', text);
+        throw new Error('Server error - please ensure the backend is running on port 4000');
+      }
+    }
+    const data = await response.json();
+    setToken(data.token);
+    return data;
+  },
+
+  async login(email: string, password: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!response.ok) {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to login');
+      } else {
+        const text = await response.text();
+        console.error('Server response:', text);
+        throw new Error('Server error - please ensure the backend is running on port 4000');
+      }
+    }
+    const data = await response.json();
+    setToken(data.token);
+    return data;
+  },
+
+  async getCurrentUser(): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get user');
+    }
+    const data = await response.json();
+    return data.user;
+  },
+
+  logout() {
+    removeToken();
+  },
+
+  // Expense endpoints
   async getExpenses(filters?: ExpenseFilters): Promise<Expense[]> {
     const params = new URLSearchParams();
     if (filters?.category && filters.category !== 'all') {
@@ -36,7 +125,11 @@ export const api = {
     }
     
     const url = `${API_BASE_URL}/api/expenses${params.toString() ? `?${params}` : ''}`;
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch expenses');
     }
@@ -46,7 +139,10 @@ export const api = {
   async createExpense(data: CreateExpenseData): Promise<Expense> {
     const response = await fetch(`${API_BASE_URL}/api/expenses`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -58,7 +154,10 @@ export const api = {
   async updateExpense(id: string, data: UpdateExpenseData): Promise<Expense> {
     const response = await fetch(`${API_BASE_URL}/api/expenses/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -70,9 +169,40 @@ export const api = {
   async deleteExpense(id: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/api/expenses/${id}`, {
       method: 'DELETE',
+      headers: {
+        ...getAuthHeaders(),
+      },
     });
     if (!response.ok) {
       throw new Error('Failed to delete expense');
     }
+  },
+
+  // Budget methods
+  async getBudget(): Promise<{ monthlyBudget: number; currency: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/budget`, {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch budget');
+    }
+    return response.json();
+  },
+
+  async updateBudget(monthlyBudget: number, currency?: string): Promise<{ monthlyBudget: number; currency: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/budget`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ monthlyBudget, currency }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update budget');
+    }
+    return response.json();
   },
 };

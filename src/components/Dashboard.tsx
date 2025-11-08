@@ -5,13 +5,18 @@ import { ExpenseList } from "./ExpenseList";
 import { ExpenseChart } from "./ExpenseChart";
 import { ExpenseFilters } from "./ExpenseFilters";
 import { SummaryCards } from "./SummaryCards";
-import { LogOut, Plus } from "lucide-react";
+import { BudgetTracker } from "./BudgetTracker";
+import { Plus, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { api, type Expense } from "@/lib/api";
 
 export type { Expense };
 
-export const Dashboard = () => {
+type DashboardProps = {
+  onLogout: () => void;
+};
+
+export const Dashboard = ({ onLogout }: DashboardProps) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -63,9 +68,23 @@ export const Dashboard = () => {
     setFilteredExpenses(filtered);
   };
 
-  const handleSignOut = async () => {
-    // No auth needed for MongoDB backend - just redirect or clear state
-    window.location.href = '/';
+  // Calculate current month's total spending
+  const getCurrentMonthTotal = () => {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    return expenses
+      .filter((exp) => new Date(exp.date).toISOString().slice(0, 7) === currentMonth)
+      .reduce((sum, exp) => sum + exp.amount, 0);
+  };
+
+  // Get current month name
+  const getCurrentMonthName = () => {
+    const date = new Date();
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  const handleSignOut = () => {
+    api.logout();
+    onLogout();
   };
 
   const handleAddExpense = () => {
@@ -128,6 +147,11 @@ export const Dashboard = () => {
         </div>
 
         <SummaryCards expenses={filteredExpenses} />
+
+        <BudgetTracker 
+          totalSpent={getCurrentMonthTotal()} 
+          currentMonth={getCurrentMonthName()}
+        />
 
         <ExpenseFilters
           categoryFilter={categoryFilter}
