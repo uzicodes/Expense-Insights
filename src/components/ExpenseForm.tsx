@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +24,7 @@ import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import type { Expense } from "./Dashboard";
+import { api, type Expense } from "@/lib/api";
 
 const expenseSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
@@ -85,30 +84,21 @@ export const ExpenseForm = ({ open, onOpenChange, expense, onSuccess }: ExpenseF
 
   const onSubmit = async (data: ExpenseFormData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
       const expenseData = {
         title: data.title,
         category: data.category,
         amount: parseFloat(data.amount),
         date: format(data.date, "yyyy-MM-dd"),
-        user_id: user.id,
       };
 
       if (expense) {
-        const { error } = await supabase
-          .from("expenses")
-          .update(expenseData)
-          .eq("id", expense.id);
-        if (error) throw error;
+        await api.updateExpense(expense._id, expenseData);
         toast({
           title: "Expense updated",
           description: "Your expense has been updated successfully.",
         });
       } else {
-        const { error } = await supabase.from("expenses").insert(expenseData);
-        if (error) throw error;
+        await api.createExpense(expenseData);
         toast({
           title: "Expense added",
           description: "Your expense has been recorded successfully.",

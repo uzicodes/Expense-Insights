@@ -15,10 +15,7 @@ if (!MONGO) {
 }
 
 mongoose
-  .connect(MONGO || 'mongodb://localhost:27017/expense-insights', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(MONGO || 'mongodb://localhost:27017/expense-insights')
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 

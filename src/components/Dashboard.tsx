@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ExpenseForm } from "./ExpenseForm";
 import { ExpenseList } from "./ExpenseList";
@@ -8,16 +7,9 @@ import { ExpenseFilters } from "./ExpenseFilters";
 import { SummaryCards } from "./SummaryCards";
 import { LogOut, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { api, type Expense } from "@/lib/api";
 
-export type Expense = {
-  id: string;
-  title: string;
-  category: "Food" | "Transport" | "Utilities" | "Other";
-  amount: number;
-  date: string;
-  created_at: string;
-  updated_at: string;
-};
+export type { Expense };
 
 export const Dashboard = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -39,13 +31,10 @@ export const Dashboard = () => {
 
   const fetchExpenses = async () => {
     try {
-      const { data, error } = await supabase
-        .from("expenses")
-        .select("*")
-        .order("date", { ascending: false });
-
-      if (error) throw error;
-      setExpenses((data as Expense[]) || []);
+      const data = await api.getExpenses();
+      // Map _id to id for compatibility
+      const mappedExpenses = data.map(exp => ({ ...exp, id: exp._id }));
+      setExpenses(mappedExpenses);
     } catch (error: any) {
       toast({
         title: "Error fetching expenses",
@@ -75,7 +64,8 @@ export const Dashboard = () => {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    // No auth needed for MongoDB backend - just redirect or clear state
+    window.location.href = '/';
   };
 
   const handleAddExpense = () => {
@@ -90,8 +80,7 @@ export const Dashboard = () => {
 
   const handleDeleteExpense = async (id: string) => {
     try {
-      const { error } = await supabase.from("expenses").delete().eq("id", id);
-      if (error) throw error;
+      await api.deleteExpense(id);
       
       toast({
         title: "Expense deleted",
