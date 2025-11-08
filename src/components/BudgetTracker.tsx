@@ -81,12 +81,21 @@ export function BudgetTracker({ totalSpent, currentMonth }: BudgetTrackerProps) 
   const remaining = budget - totalSpent;
 
   return (
-    <Card className={isOverBudget ? 'border-red-500' : ''}>
-      <CardHeader>
+    <Card className={`relative overflow-hidden bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-950 dark:to-fuchsia-950 border-0 shadow-xl animate-fade-in ${
+      isOverBudget ? 'ring-2 ring-red-500' : ''
+    }`}>
+      {/* Animated gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 animate-pulse"></div>
+      
+      <CardHeader className="relative">
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
-            Monthly Budget
+            <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 shadow-lg">
+              <DollarSign className="h-5 w-5 text-white" />
+            </div>
+            <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+              Monthly Budget
+            </span>
           </span>
           {!isEditing && (
             <Button variant="ghost" size="sm" onClick={handleEdit}>

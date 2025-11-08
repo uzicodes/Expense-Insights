@@ -30,9 +30,11 @@ const categoryColors: Record<Expense["category"], string> = {
 export const ExpenseList = ({ expenses, onEdit, onDelete, loading }: ExpenseListProps) => {
   if (loading) {
     return (
-      <Card className="shadow-card">
+      <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-0 shadow-xl animate-scale-in">
         <CardHeader>
-          <CardTitle>Recent Expenses</CardTitle>
+          <CardTitle className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Recent Expenses
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-center py-8">Loading expenses...</p>
@@ -43,9 +45,11 @@ export const ExpenseList = ({ expenses, onEdit, onDelete, loading }: ExpenseList
 
   if (expenses.length === 0) {
     return (
-      <Card className="shadow-card">
+      <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-0 shadow-xl animate-scale-in">
         <CardHeader>
-          <CardTitle>Recent Expenses</CardTitle>
+          <CardTitle className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Recent Expenses
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-center py-8">
@@ -57,15 +61,17 @@ export const ExpenseList = ({ expenses, onEdit, onDelete, loading }: ExpenseList
   }
 
   return (
-    <Card className="shadow-card">
+    <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl transition-all duration-300 animate-scale-in">
       <CardHeader>
-        <CardTitle>Recent Expenses</CardTitle>
+        <CardTitle className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          Recent Expenses
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="overflow-auto max-h-[500px]">
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="border-indigo-100 dark:border-indigo-900">
                 <TableHead>Date</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Category</TableHead>
@@ -75,17 +81,17 @@ export const ExpenseList = ({ expenses, onEdit, onDelete, loading }: ExpenseList
             </TableHeader>
             <TableBody>
               {expenses.map((expense) => (
-                <TableRow key={expense.id} className="hover:bg-muted/50 transition-colors">
+                <TableRow key={expense._id} className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-950 dark:hover:to-purple-950 transition-all duration-200">
                   <TableCell className="font-medium">
                     {format(new Date(expense.date), "MMM dd, yyyy")}
                   </TableCell>
-                  <TableCell>{expense.title}</TableCell>
+                  <TableCell className="font-medium">{expense.title}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className={categoryColors[expense.category]}>
+                    <Badge variant="secondary" className={`${categoryColors[expense.category]} shadow-sm`}>
                       {expense.category}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right font-semibold">
+                  <TableCell className="text-right font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     ${expense.amount.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -94,15 +100,15 @@ export const ExpenseList = ({ expenses, onEdit, onDelete, loading }: ExpenseList
                         variant="ghost"
                         size="icon"
                         onClick={() => onEdit(expense)}
-                        className="hover:bg-primary/10 hover:text-primary"
+                        className="hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white transition-all duration-200"
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => onDelete(expense.id)}
-                        className="hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => onDelete(expense._id)}
+                        className="hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-500 hover:text-white transition-all duration-200"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
