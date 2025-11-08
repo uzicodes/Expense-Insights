@@ -166,6 +166,7 @@ app.post('/api/expenses', authMiddleware, async (req, res) => {
       userId: req.userId 
     });
     await expense.save();
+    console.log('✅ Expense created:', { id: expense._id, title: expense.title, amount: expense.amount, userId: expense.userId });
     res.status(201).json(expense);
   } catch (err) {
     console.error(err);
