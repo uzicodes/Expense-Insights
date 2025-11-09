@@ -57,13 +57,21 @@ app.use((req, res, next) => {
 
 const MONGO = process.env.MONGODB_URI || process.env.MONGO_URI;
 if (!MONGO) {
-  console.warn('Warning: MONGODB_URI is not set. Set it in environment before starting the server.');
+  console.error('❌ MONGODB_URI is not set! Please set it in environment variables.');
+  process.exit(1);
 }
 
+console.log('🔄 Connecting to MongoDB...');
 mongoose
-  .connect(MONGO || 'mongodb://localhost:27017/expense-insights')
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .connect(MONGO, {
+    serverSelectionTimeoutMS: 5000,
+  })
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('Full error:', err);
+    process.exit(1);
+  });
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -312,4 +320,9 @@ app.post('/api/budget', authMiddleware, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server listening on port ${PORT}`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔑 JWT_SECRET is set: ${!!process.env.JWT_SECRET}`);
+  console.log(`🗄️  MongoDB URI is set: ${!!process.env.MONGODB_URI}`);
+});
