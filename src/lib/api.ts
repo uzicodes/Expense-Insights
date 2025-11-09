@@ -1,7 +1,13 @@
 // API client for MongoDB backend
 // In development, use Vite proxy (empty string = same origin)
 // In production, use VITE_API_URL from env
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
+// Debug: Log API URL in production
+if (import.meta.env.PROD) {
+  console.log('API Base URL:', API_BASE_URL || '(using relative URLs)');
+  console.log('VITE_API_URL env:', import.meta.env.VITE_API_URL);
+}
 
 // Token management
 const TOKEN_KEY = 'expense_tracker_token';
