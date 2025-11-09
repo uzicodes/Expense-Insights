@@ -89,8 +89,8 @@ export function BudgetTracker({ totalSpent, currentMonth }: BudgetTrackerProps) 
     <Card className={`relative overflow-hidden bg-gradient-to-br from-violet-50 to-fuchsia-50 dark:from-violet-950 dark:to-fuchsia-950 border-0 shadow-xl animate-fade-in ${
       isOverBudget ? 'ring-2 ring-red-500' : ''
     }`}>
-      {/* Animated gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 animate-pulse"></div>
+      {/* Animated gradient overlay - pointer-events-none to allow interaction with inputs */}
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 animate-pulse pointer-events-none"></div>
       
       <CardHeader className="relative">
         <CardTitle className="flex items-center justify-between">
@@ -116,9 +116,9 @@ export function BudgetTracker({ totalSpent, currentMonth }: BudgetTrackerProps) 
         </CardTitle>
         <CardDescription>Track your spending for {currentMonth}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="relative space-y-4">
         {isEditing ? (
-          <div className="space-y-4">
+          <div className="relative space-y-4">
             <div className="space-y-2">
               <Label htmlFor="budget-input">Set Monthly Budget</Label>
               <Input
