@@ -10,17 +10,42 @@ const Budget = require('./models/Budget');
 const { authMiddleware, JWT_SECRET } = require('./middleware/auth');
 
 const app = express();
-// Allow all localhost ports for development
+// CORS configuration for production and development
+const allowedOrigins = [
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://localhost:8082',
+  'http://localhost:8083',
+  'http://localhost:8084',
+  'https://expense-insights.vercel.app',
+  'https://expense-insights-git-main-uzicodes.vercel.app', // Vercel preview deployments
+];
+
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
+    // Allow requests with no origin (like mobile apps, Postman, or curl)
     if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any localhost port for development
     if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
       return callback(null, true);
     }
+    
+    // Allow any Vercel preview deployment
+    if (origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    
     callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
