@@ -29,6 +29,11 @@ export function BudgetTracker({ totalSpent, currentMonth }: BudgetTrackerProps) 
       const data = await api.getBudget();
       setBudget(data.monthlyBudget);
       setInputValue(data.monthlyBudget.toString());
+      
+      // Auto-open edit form if budget is not set
+      if (data.monthlyBudget === 0) {
+        setIsEditing(true);
+      }
     } catch (error) {
       console.error('Failed to load budget:', error);
     } finally {
@@ -98,8 +103,14 @@ export function BudgetTracker({ totalSpent, currentMonth }: BudgetTrackerProps) 
             </span>
           </span>
           {!isEditing && (
-            <Button variant="ghost" size="sm" onClick={handleEdit}>
-              <Edit2 className="h-4 w-4" />
+            <Button 
+              variant={budget === 0 ? "default" : "ghost"} 
+              size="sm" 
+              onClick={handleEdit}
+              className={budget === 0 ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white" : ""}
+            >
+              <Edit2 className="h-4 w-4 mr-1" />
+              {budget === 0 ? "Set Budget" : ""}
             </Button>
           )}
         </CardTitle>
@@ -196,9 +207,12 @@ export function BudgetTracker({ totalSpent, currentMonth }: BudgetTrackerProps) 
             )}
 
             {budget === 0 && (
-              <div className="text-center text-sm text-muted-foreground py-4">
-                Click the edit button to set your monthly budget
-              </div>
+              <Alert className="border-violet-500 bg-violet-50 dark:bg-violet-950">
+                <AlertCircle className="h-4 w-4 text-violet-600" />
+                <AlertDescription className="text-violet-800 dark:text-violet-200">
+                  <strong>No budget set yet!</strong> Click the edit button (✏️) above to set your monthly spending budget.
+                </AlertDescription>
+              </Alert>
             )}
           </>
         )}
