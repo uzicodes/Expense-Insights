@@ -19,7 +19,7 @@ export const Auth = ({ onSuccess }: AuthProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -40,7 +40,7 @@ export const Auth = ({ onSuccess }: AuthProps) => {
     }
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -80,17 +80,17 @@ export const Auth = ({ onSuccess }: AuthProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
+            <TabsContent value="login">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email-signin">Email</Label>
+                  <Label htmlFor="email-login">Email</Label>
                   <Input
-                    id="email-signin"
+                    id="email-login"
                     type="email"
                     placeholder="you@example.com"
                     value={email}
@@ -99,9 +99,9 @@ export const Auth = ({ onSuccess }: AuthProps) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password-signin">Password</Label>
+                  <Label htmlFor="password-login">Password</Label>
                   <Input
-                    id="password-signin"
+                    id="password-login"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -114,16 +114,16 @@ export const Auth = ({ onSuccess }: AuthProps) => {
                   disabled={loading}
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Sign In
+                  Login
                 </Button>
               </form>
             </TabsContent>
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
+            <TabsContent value="register">
+              <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name-signup">Name (Optional)</Label>
+                  <Label htmlFor="name-register">Name (Optional)</Label>
                   <Input
-                    id="name-signup"
+                    id="name-register"
                     type="text"
                     placeholder="Your Name"
                     value={name}
@@ -131,9 +131,9 @@ export const Auth = ({ onSuccess }: AuthProps) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email-signup">Email</Label>
+                  <Label htmlFor="email-register">Email</Label>
                   <Input
-                    id="email-signup"
+                    id="email-register"
                     type="email"
                     placeholder="you@example.com"
                     value={email}
@@ -142,9 +142,9 @@ export const Auth = ({ onSuccess }: AuthProps) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password-signup">Password</Label>
+                  <Label htmlFor="password-register">Password</Label>
                   <Input
-                    id="password-signup"
+                    id="password-register"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -158,7 +158,7 @@ export const Auth = ({ onSuccess }: AuthProps) => {
                   disabled={loading}
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Account
+                  Register
                 </Button>
               </form>
             </TabsContent>

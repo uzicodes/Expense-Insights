@@ -82,7 +82,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
 
-  const handleSignOut = () => {
+  const handleLogout = () => {
     api.logout();
     onLogout();
   };
@@ -141,11 +141,11 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
           </div>
           <Button 
             variant="outline" 
-            onClick={handleSignOut}
+            onClick={handleLogout}
             className="animate-slide-in-right hover:scale-105 transition-transform duration-200 hover:border-red-300 hover:text-red-600"
           >
             <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
+            Logout
           </Button>
         </div>
       </header>
